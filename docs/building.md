@@ -63,7 +63,7 @@ where a real tool dependency provides the compiler.
 ./host/go/build.sh
 python tools/make_tool_archives.py
 python tools/make_package.py --version 0.2.0 \
-    --base-url https://github.com/OWNER/REPO/releases/download/v0.2.0
+    --base-url https://github.com/bateske/CH32SerialBoot/releases/download/v0.2.0
 ```
 
 Produces in `dist/`:
