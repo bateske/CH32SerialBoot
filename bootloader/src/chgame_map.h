@@ -27,7 +27,7 @@
 
 #define CHGAME_APP_START      (CHGAME_BOOT_START + CHGAME_BOOT_SIZE)   /* 0x2000 */
 #define CHGAME_META_ADDR      (CHGAME_FLASH_BASE + CHGAME_FLASH_SIZE - CHGAME_PAGE_SIZE) /* 0xF700 */
-#define CHGAME_APP_MAX_SIZE   (CHGAME_META_ADDR - CHGAME_APP_START)    /* 55040  */
+#define CHGAME_APP_MAX_SIZE   (CHGAME_META_ADDR - CHGAME_APP_START)    /* 50944  */
 #define CHGAME_APP_END        CHGAME_META_ADDR                          /* exclusive */
 
 /* --- SRAM ----------------------------------------------------------------- */

@@ -8,6 +8,13 @@ cd "$ROOT"
 
 # Keep the linker scripts in step with chgame_map.h before anything compiles.
 python tools/gen_ld.py
+
+# The Arduino core carries its own copy of the flash map, because the header
+# lives outside the platform tree. Refresh it here so the two cannot drift:
+# a stale copy would put the application-side boot magic at a different
+# address from the one the bootloader reads, and uploads would simply stop
+# working with no obvious cause.
+cp bootloader/src/chgame_map.h arduino/CHGame/cores/arduino/ch32/chgame_map.h
 echo
 
 "$ROOT/bootloader/build.sh"
