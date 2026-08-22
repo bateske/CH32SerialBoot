@@ -96,6 +96,17 @@ and the toolchain entry does the same. Mirroring both into your own release make
 installs reproducible. wchisp is GPL-2.0 — mirroring it means redistributing it,
 so ship its licence and a source offer alongside.
 
+### Two traps when publishing
+
+**`/releases/latest/` skips pre-releases.** A release marked pre-release is not
+reachable through the `latest` alias at all - the URL 404s. Either publish
+normally, or point people at an explicit version tag.
+
+**arduino-cli caches the index.** If a previous index was fetched from a
+different URL, `core update-index` can quietly keep serving the cached copy and
+the install fails against stale URLs. Delete
+`$ARDUINO15/package_chgame_index.json` before testing a new one.
+
 ### Verifying a release
 
 ```bash
