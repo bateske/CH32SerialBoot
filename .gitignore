@@ -1,0 +1,32 @@
+# Build outputs
+build/
+**/build/
+dist/
+host/go/chgame-upload
+host/go/chgame-upload.exe
+
+# Portable toolchains fetched locally (Go is ~270 MB)
+.toolchains/
+
+# Python
+__pycache__/
+*.pyc
+
+# Editor / OS noise
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store
+
+# ---------------------------------------------------------------------------
+# Not published.
+#
+# These stay on disk and are deliberately not part of the public repository.
+# The brief is an internal specification document; the schematic and netlist are
+# hardware design files that are not needed to build or reproduce the firmware.
+# Remove these lines if you decide to publish them.
+# ---------------------------------------------------------------------------
+CH32X035_Arduino_Driverless_Bootloader_Agent_Brief.md
+SCH_Schematic1_*.pdf
+Netlist_Schematic1_*.tel

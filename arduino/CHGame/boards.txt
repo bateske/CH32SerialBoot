@@ -1,0 +1,85 @@
+# CHGame board definition.
+#
+# Deliberately ONE board with ONE obvious upload behaviour. The upstream CH32
+# core exposes menus for clock, optimisation, debug level, C runtime and
+# programmer choice; almost none of that is meaningful to someone who just
+# wants to press Upload, and every extra menu is another way to end up with a
+# board that will not enumerate.
+#
+# The advanced menus that remain are the two that a game actually needs to
+# trade off (optimisation and float printf support). Programmer selection is
+# NOT offered: normal uploads always go through the CHGame bootloader over USB
+# CDC. Factory provisioning and recovery use wchisp directly and are documented
+# in docs/recovery.md rather than surfaced here.
+
+menu.opt=Optimize
+menu.rtlib=C Runtime Library
+
+CHGame.name=CHGame
+
+CHGame.build.core=arduino
+CHGame.build.board=CHGame
+CHGame.build.mcu=QingKe-V4C
+CHGame.build.series=CH32X035
+CHGame.build.chip=CH32X035G8U
+CHGame.build.variant=CH32X035/CHGame
+CHGame.build.variant_h=variant_CHGame.h
+CHGame.build.march=rv32imacxw
+CHGame.build.mabi=ilp32
+CHGame.build.math_lib_gcc=-lm
+CHGame.build.ch_extra_lib=-lprintf
+
+# Relocated application: the first 12 KB of flash belong to the bootloader.
+# This script and the numbers below are generated from bootloader/src/chgame_map.h
+# by tools/gen_ld.py, so they cannot drift from what the bootloader enforces.
+CHGame.build.ldscript=link_chgame_app.ld
+CHGame.upload.maximum_size=50944
+CHGame.upload.maximum_data_size=20480
+
+# Serial is native USB CDC, and the 1200-baud upload handshake is handled inside
+# the USB interrupt (see libraries/CHGameUSB). Sketches need no special code.
+CHGame.build.usb_flags=-DUSE_CHGAME_USB_CDC
+CHGame.build.flags.clock=-DSYSCLK_FREQ_48MHz_HSI=48000000 -DF_CPU=48000000
+
+# The uploader performs the whole app -> bootloader -> app transition itself,
+# so the IDE must NOT also touch the port: a second 1200-baud touch, or the IDE
+# racing us to grab the rediscovered port, is a reliable way to break an upload
+# that would otherwise work.
+CHGame.upload.tool=chgame_upload
+CHGame.upload.protocol=chgame
+CHGame.upload.use_1200bps_touch=false
+CHGame.upload.wait_for_upload_port=false
+CHGame.upload.native_usb=true
+
+# Burn Bootloader writes this image through the factory ISP. Shipped with the
+# platform so a user never has to locate or build a bootloader binary.
+CHGame.bootloader.tool=chgame_upload
+CHGame.bootloader.file=CHGame/chgame_bootloader.bin
+
+CHGame.vid.0=0x16C0
+CHGame.pid.0=0x27DD
+
+CHGame.menu.opt.osstd=Smallest (-Os default)
+CHGame.menu.opt.osstd.build.flags.optimize=-Os
+CHGame.menu.opt.o1std=Fast (-O1)
+CHGame.menu.opt.o1std.build.flags.optimize=-O1
+CHGame.menu.opt.o2std=Faster (-O2)
+CHGame.menu.opt.o2std.build.flags.optimize=-O2
+CHGame.menu.opt.o3std=Fastest (-O3)
+CHGame.menu.opt.o3std.build.flags.optimize=-O3
+CHGame.menu.opt.ogstd=Debug (-Og)
+CHGame.menu.opt.ogstd.build.flags.optimize=-Og
+
+CHGame.menu.rtlib.nano=Newlib Nano (default)
+CHGame.menu.rtlib.nano.build.flags.ldflags=--specs=nano.specs --specs=nosys.specs
+CHGame.menu.rtlib.nanofp=Newlib Nano + Float Printf
+CHGame.menu.rtlib.nanofp.build.flags.ldflags=--specs=nano.specs --specs=nosys.specs -u _printf_float
+CHGame.menu.rtlib.full=Newlib Standard
+CHGame.menu.rtlib.full.build.flags.ldflags=--specs=nosys.specs
+
+CHGame.build.flags.debug=-DNDEBUG
+CHGame.build.flags.fp=
+CHGame.build.enable_usb=
+CHGame.build.usb_speed=
+CHGame.build.peripheral_pins=
+CHGame.build.startup_file=

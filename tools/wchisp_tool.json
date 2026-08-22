@@ -1,0 +1,41 @@
+{
+  "name": "wchisp",
+  "version": "0.3.0",
+  "systems": [
+    {
+      "host": "x86_64-mingw32",
+      "url": "https://github.com/ch32-rs/wchisp/releases/download/v0.3.0/wchisp-v0.3.0-win-x64.zip",
+      "archiveFileName": "wchisp-v0.3.0-win-x64.zip",
+      "checksum": "SHA-256:eba605bbc62f217f6454e7236d04ef1b8a6b4396dd7ce8dc26fc83016213c3aa",
+      "size": "681807"
+    },
+    {
+      "host": "x86_64-apple-darwin",
+      "url": "https://github.com/ch32-rs/wchisp/releases/download/v0.3.0/wchisp-v0.3.0-macos-x64.tar.gz",
+      "archiveFileName": "wchisp-v0.3.0-macos-x64.tar.gz",
+      "checksum": "SHA-256:ebbf46b0c64bb356cd58da2683c8809c50bdfe2181969f544933d24c8846f608",
+      "size": "830611"
+    },
+    {
+      "host": "arm64-apple-darwin",
+      "url": "https://github.com/ch32-rs/wchisp/releases/download/v0.3.0/wchisp-v0.3.0-macos-arm64.tar.gz",
+      "archiveFileName": "wchisp-v0.3.0-macos-arm64.tar.gz",
+      "checksum": "SHA-256:a17dd422f7697bfe35c7c837c16bf99a7193300bcdc276c1253332b3a023e936",
+      "size": "804543"
+    },
+    {
+      "host": "x86_64-pc-linux-gnu",
+      "url": "https://github.com/ch32-rs/wchisp/releases/download/v0.3.0/wchisp-v0.3.0-linux-x64.tar.gz",
+      "archiveFileName": "wchisp-v0.3.0-linux-x64.tar.gz",
+      "checksum": "SHA-256:67e3d4eb0ffd3cc610d8927e3c3f452e2110531a3f14405dcaef87df219f200d",
+      "size": "883953"
+    },
+    {
+      "host": "aarch64-linux-gnu",
+      "url": "https://github.com/ch32-rs/wchisp/releases/download/v0.3.0/wchisp-v0.3.0-linux-aarch64.tar.gz",
+      "archiveFileName": "wchisp-v0.3.0-linux-aarch64.tar.gz",
+      "checksum": "SHA-256:3d7477c05c65f69091d041623a06c558c549dc27bfe2a043d9325f310f2ee40f",
+      "size": "883441"
+    }
+  ]
+}

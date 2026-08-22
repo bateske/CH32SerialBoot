@@ -1,0 +1,13 @@
+# Programmers offered for Burn Bootloader and Upload Using Programmer.
+#
+# Exactly one, because there is exactly one situation that needs a programmer:
+# putting the CHGame bootloader onto a board that does not have it yet, or
+# rescuing one whose bootloader was damaged. Normal uploads never come here.
+#
+# "WCH factory ISP" is not an external programmer - it is the immutable ISP
+# built into the chip, entered by holding BOOT across a power cycle. Nothing
+# needs to be plugged in beyond the USB cable.
+
+wchisp.name=WCH factory ISP (hold BOOT, power cycle)
+wchisp.program.tool=chgame_upload
+wchisp.program.extra_params=
