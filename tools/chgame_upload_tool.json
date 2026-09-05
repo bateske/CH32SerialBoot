@@ -4,35 +4,35 @@
   "systems": [
     {
       "host": "x86_64-mingw32",
-      "url": "https://github.com/bateske/CH32SerialBoot/releases/download/v0.1.0/chgame-upload-0.1.0-x86_64-mingw32.tar.bz2",
+      "url": "https://github.com/bateske/CH32SerialBoot/releases/download/v0.2.0/chgame-upload-0.1.0-x86_64-mingw32.tar.bz2",
       "archiveFileName": "chgame-upload-0.1.0-x86_64-mingw32.tar.bz2",
       "checksum": "SHA-256:6aa3babc1547ac119ff35ed6e4a680ce7370a859937c4fb25ee781e16844dc10",
       "size": "1115916"
     },
     {
       "host": "x86_64-pc-linux-gnu",
-      "url": "https://github.com/bateske/CH32SerialBoot/releases/download/v0.1.0/chgame-upload-0.1.0-x86_64-pc-linux-gnu.tar.bz2",
+      "url": "https://github.com/bateske/CH32SerialBoot/releases/download/v0.2.0/chgame-upload-0.1.0-x86_64-pc-linux-gnu.tar.bz2",
       "archiveFileName": "chgame-upload-0.1.0-x86_64-pc-linux-gnu.tar.bz2",
       "checksum": "SHA-256:71e837ba766d5f5217154c8f45e1f2103396ab6fc7bc85b789e5e5530f7d8af6",
       "size": "1039204"
     },
     {
       "host": "aarch64-linux-gnu",
-      "url": "https://github.com/bateske/CH32SerialBoot/releases/download/v0.1.0/chgame-upload-0.1.0-aarch64-linux-gnu.tar.bz2",
+      "url": "https://github.com/bateske/CH32SerialBoot/releases/download/v0.2.0/chgame-upload-0.1.0-aarch64-linux-gnu.tar.bz2",
       "archiveFileName": "chgame-upload-0.1.0-aarch64-linux-gnu.tar.bz2",
       "checksum": "SHA-256:8053797554a9390427bf655739fc99bf6f71af40471513f1e85c38d8a52baae6",
       "size": "923474"
     },
     {
       "host": "x86_64-apple-darwin",
-      "url": "https://github.com/bateske/CH32SerialBoot/releases/download/v0.1.0/chgame-upload-0.1.0-x86_64-apple-darwin.tar.bz2",
+      "url": "https://github.com/bateske/CH32SerialBoot/releases/download/v0.2.0/chgame-upload-0.1.0-x86_64-apple-darwin.tar.bz2",
       "archiveFileName": "chgame-upload-0.1.0-x86_64-apple-darwin.tar.bz2",
       "checksum": "SHA-256:f83b0bb6fc6d2a791a2a6040541e894f2a80dfde4c6e0e3da51ca87a8a200ce9",
       "size": "1020355"
     },
     {
       "host": "arm64-apple-darwin",
-      "url": "https://github.com/bateske/CH32SerialBoot/releases/download/v0.1.0/chgame-upload-0.1.0-arm64-apple-darwin.tar.bz2",
+      "url": "https://github.com/bateske/CH32SerialBoot/releases/download/v0.2.0/chgame-upload-0.1.0-arm64-apple-darwin.tar.bz2",
       "archiveFileName": "chgame-upload-0.1.0-arm64-apple-darwin.tar.bz2",
       "checksum": "SHA-256:f54ca2776d738bcd4d9e3d873df5f9e4ae6cdbfb9577262bb649ce1dd3ecd05e",
       "size": "928271"

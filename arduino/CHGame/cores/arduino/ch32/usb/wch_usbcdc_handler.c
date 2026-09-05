@@ -76,15 +76,22 @@ void USB_init(void) {
     // Configure USB device controller
     USBFSD->UDEV_CTRL = USBFS_UD_PD_DIS | USBFS_UD_PORT_EN;
     
-    // Enable USB with pull-up - this makes device visible to host
-    USBFSD->BASE_CTRL = USBFS_UC_DEV_PU_EN | USBFS_UC_INT_BUSY | USBFS_UC_DMA_EN;
-    
-    // Very long delay for enumeration
-    for(volatile int i = 0; i < 100000; i++) __NOP();
-
-    // Enable interrupts
+    /* Arm the interrupt BEFORE asserting the pull-up.
+     *
+     * The pull-up is what makes the device visible to the host, so enabling it
+     * first opened a window in which the host could begin talking to a device
+     * that had no handler installed to answer. That was survivable only because
+     * the host must debounce an attach for 100 ms before it issues a bus reset
+     * -- i.e. it worked by accident. Nothing requires this order. */
     USBFSD->INT_EN = USBFS_UIE_SUSPEND | USBFS_UIE_BUS_RST | USBFS_UIE_TRANSFER;
     NVIC_EnableIRQ(USBFS_IRQn);
+
+    /* Attach. From here the host may enumerate us at any time, entirely from
+     * USBFS_IRQHandler -- there is deliberately nothing left to wait for. The
+     * "very long delay for enumeration" that used to sit here spun ~15 ms for
+     * no reason: the main loop plays no part in enumeration, so the caller is
+     * free to go and run setup() while the ISR does the work. */
+    USBFSD->BASE_CTRL = USBFS_UC_DEV_PU_EN | USBFS_UC_INT_BUSY | USBFS_UC_DMA_EN;
 }
 
 void USB_EP0_copyDescr(uint8_t len) {

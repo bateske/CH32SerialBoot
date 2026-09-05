@@ -71,6 +71,36 @@ An empty sketch stays uploadable. The upload handshake lives in the USB
 interrupt, not in sketch code, so a sketch that never mentions `Serial` — or one
 stuck in a blocking loop — can still be replaced.
 
+### Startup
+
+Your sketch starts within a few milliseconds of power-on. The bootloader's only
+work on a normal boot is a CRC-32 over the image and the jump, and bringing up
+USB does not block: enumeration completes in the USB interrupt while `setup()`
+is already running, so a game can be initialising its display and drawing frames
+before the COM port appears on the host.
+
+`Serial` is therefore usable, but not yet connected, during early `setup()`.
+Writes to a port no host has enumerated are **discarded, never blocked** — a
+board on batteries with no USB attached runs at full speed instead of stalling
+on its first `println`. Writes to a host that has stopped reading are dropped
+after a short timeout for the same reason, so a closed serial monitor can never
+stall a game loop.
+
+If a sketch genuinely needs the port before it continues, ask for it:
+
+```cpp
+void setup() {
+  Serial.begin(115200);
+  while (!Serial);            // or Serial.waitForPC(3000) to give up after 3 s
+  Serial.println("a terminal is listening");
+}
+```
+
+`Serial.enumerated()` reports whether the host has configured the device, and
+`Serial.waitForPC(ms)` waits for a terminal to actually open the port. Sketches
+that would rather stall than lose output can build with
+`-DCHGAME_USB_TX_TIMEOUT_MS=n`.
+
 ## First flash of a blank board
 
 A brand-new board has no bootloader, so it needs one pass through the chip's

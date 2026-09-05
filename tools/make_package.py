@@ -177,7 +177,7 @@ def build_index(version: str, archive: pathlib.Path, base_url: str) -> pathlib.P
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--version", default="0.1.0")
+    ap.add_argument("--version", default="0.2.0")
     ap.add_argument("--base-url", default="",
                     help="where the archive will be hosted; blank makes a local file:// index")
     args = ap.parse_args()

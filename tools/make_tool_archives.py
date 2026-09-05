@@ -13,7 +13,7 @@ import shutil
 import tarfile
 import tempfile
 
-ROOT = pathlib.Path(r"D:\LocalProjects\CH32SerialBoot")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 TOOLS = DIST / "tools"
 VERSION = "0.1.0"

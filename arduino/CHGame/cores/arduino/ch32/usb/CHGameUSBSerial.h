@@ -25,6 +25,16 @@ public:
   uint32_t baud() const;
   bool setBaud(uint32_t baud);
 
+  /* True once the host has selected a configuration, i.e. the port exists.
+     begin() no longer blocks until this is true, so a sketch that cares can
+     ask. */
+  bool enumerated() const;
+
+  /* Arduino's `while (!Serial);` idiom. Deliberately the only place a sketch
+     pays for waiting: startup does not block on the host, so a sketch that
+     genuinely needs the port open opts in here (or via waitForPC). */
+  explicit operator bool() const { return dtr(); }
+
   // Wait for host connection with optional timeout (ms)
   bool waitForPC(uint32_t timeoutMs = 0);
 
