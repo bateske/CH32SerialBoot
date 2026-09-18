@@ -31,7 +31,7 @@ running : application is up on COM8
 In Arduino IDE, add this to **Preferences → Additional Boards Manager URLs**:
 
 ```
-https://github.com/bateske/CH32SerialBoot/releases/latest/download/package_chgame_index.json
+https://github.com/bateske/CH32SerialBoot/releases/download/v0.1.0/package_chgame_index.json
 ```
 
 Then **Tools → Board → Boards Manager**, search for *CHGame*, install.
