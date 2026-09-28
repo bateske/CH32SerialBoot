@@ -39,6 +39,9 @@ Then **Tools → Board → Boards Manager**, search for *CHGame*, install.
 That is the only thing to install. The toolchain, the uploader and `wchisp` all
 arrive as dependencies of the board package.
 
+New versions show up in Boards Manager as an update to the installed package.
+What changed in each one is in [CHANGELOG.md](CHANGELOG.md).
+
 > **Status: development preview.** The USB VID/PID are shared test identifiers
 > (`16C0:27DD`) and **must** be replaced with a real allocation before any public
 > release. See [Before shipping](#before-shipping).

@@ -58,12 +58,27 @@ where a real tool dependency provides the compiler.
 
 ## Releasing
 
+The version is the `version=` line in `arduino/CHGame/platform.txt`. That is the
+number Boards Manager compares with what a user has installed to decide whether
+to offer an update, so every release bumps it, and `tools/release.sh` refuses a
+version that does not match it.
+
+1. Bump `version=` in `arduino/CHGame/platform.txt`.
+2. Add a `## <version> (<date>)` section to `CHANGELOG.md`. The script uses it
+   as the GitHub release notes and refuses to run without it.
+3. Commit and push. The release tag is created on GitHub at the pushed `main`,
+   so the script also refuses a dirty tree or an unpushed `HEAD`.
+4. `./tools/release.sh <version> bateske/CH32SerialBoot`. Add `--dry-run` to
+   build everything and publish nothing.
+5. Commit `tools/chgame_upload_tool.json`, which now points at the new tag.
+
+The steps the script runs, for doing it by hand:
+
 ```bash
 ./tools/build_all.sh
 ./host/go/build.sh
-python tools/make_tool_archives.py
-python tools/make_package.py --version 0.2.0 \
-    --base-url https://github.com/bateske/CH32SerialBoot/releases/download/v0.2.0
+python tools/make_tool_archives.py --base-url https://github.com/bateske/CH32SerialBoot/releases/download/v<version>
+python tools/make_package.py --base-url https://github.com/bateske/CH32SerialBoot/releases/download/v<version>
 ```
 
 Produces in `dist/`:
@@ -76,8 +91,12 @@ Upload **all** of those to a GitHub release tagged `v<version>`. The index
 references the archives by URL with pinned SHA-256 checksums, so the URLs must
 resolve exactly as given to `--base-url`.
 
-`tools/release.sh` does the whole sequence, including creating the release with
-`gh`.
+Publish it as a normal release, never a pre-release: the README points users at
+`/releases/latest/download/package_chgame_index.json`, and that alias skips
+pre-releases. Once the release is up, Arduino IDE offers the new version in
+Boards Manager the next time it refreshes its indexes. The script also
+re-uploads the new index to every earlier `v*` release, so someone who added an
+explicit version URL instead of `latest` is offered the update as well.
 
 ### What the index contains
 

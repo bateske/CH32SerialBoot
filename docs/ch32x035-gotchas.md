@@ -80,6 +80,16 @@ callers can use plain unsigned subtraction. `STATUS` reports both the direction
 and a live tick sample, so the host can verify the timebase from outside instead
 of trusting the firmware's own arithmetic.
 
+**The Arduino core had the mirror image of this bug.** Its `systick_init()`
+leaves bit 4 clear (`CTLR = 0xF`: up-count with auto-reload), so `CNT` climbs
+from 0 to `CMP` every millisecond, but `getCurrentMicros()` was inherited from a
+Cortex-M core whose SysTick counts down and used `CMP + 1 - CNT` for the
+sub-millisecond part. `micros()` therefore ran *backwards* inside every
+millisecond and jumped ~2 ms forward at each tick, while `millis()` and
+`delay()` were fine, which is why nothing obvious broke. Fixed in board package
+0.2.1; `test/sketches/MicrosMonotonic` is the regression check and
+`test/native/sim_micros.py` models both versions of the code.
+
 **Sub-gotcha:** `CTLR` bit 5 (`INIT`) zeroes `CNT` as the counter starts. Sample
 the direction from zero and a down-counter immediately wraps to `0xFFFFFFFF`,
 so the test measures across the wrap and concludes "up". Seed `CNT` to

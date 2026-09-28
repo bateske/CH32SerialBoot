@@ -37,6 +37,19 @@ UPSTREAM_INDEX = pathlib.Path(
     r"C:\Users\kevin\AppData\Local\Arduino15\package_ch32_index.json")
 
 
+def platform_version() -> str:
+    """The version= line of platform.txt.
+
+    That is the number Boards Manager compares with an installed package to
+    decide whether to offer an update, so it is the one place a release is
+    versioned; the archive name, the index and the release tag all follow it.
+    """
+    for line in (PLATFORM / "platform.txt").read_text().splitlines():
+        if line.startswith("version="):
+            return line.split("=", 1)[1].strip()
+    raise SystemExit("no version= line in " + str(PLATFORM / "platform.txt"))
+
+
 def _keep(path: pathlib.Path) -> bool:
     if path.name in EXCLUDE_NAMES or path.suffix in EXCLUDE_SUFFIX:
         return False
@@ -146,15 +159,15 @@ def build_index(version: str, archive: pathlib.Path, base_url: str) -> pathlib.P
         "packages": [{
             "name": "CHGame",
             "maintainer": "CHGame",
-            "websiteURL": "https://github.com/bateske/CHGame",
+            "websiteURL": "https://github.com/bateske/CH32SerialBoot",
             "email": "",
-            "help": {"online": "https://github.com/bateske/CHGame/issues"},
+            "help": {"online": "https://github.com/bateske/CH32SerialBoot/issues"},
             "platforms": [{
                 "name": "CHGame Boards",
                 "architecture": "ch32v",
                 "version": version,
                 "category": "Contributed",
-                "help": {"online": "https://github.com/bateske/CHGame/issues"},
+                "help": {"online": "https://github.com/bateske/CH32SerialBoot/issues"},
                 "url": f"{base_url.rstrip('/')}/{archive.name}",
                 "archiveFileName": archive.name,
                 "checksum": "SHA-256:" + hashlib.sha256(blob).hexdigest(),
@@ -177,14 +190,21 @@ def build_index(version: str, archive: pathlib.Path, base_url: str) -> pathlib.P
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--version", default="0.2.0")
+    ap.add_argument("--version", default=None,
+                    help="defaults to platform.txt, and must match it when given")
     ap.add_argument("--base-url", default="",
                     help="where the archive will be hosted; blank makes a local file:// index")
     args = ap.parse_args()
 
-    archive = build_archive(args.version)
+    version = platform_version()
+    if args.version and args.version != version:
+        raise SystemExit(
+            f"--version {args.version} does not match platform.txt ({version}). "
+            "Bump platform.txt: that is the number Boards Manager compares to offer updates.")
+
+    archive = build_archive(version)
     base = args.base_url or DIST.as_uri()
-    index = build_index(args.version, archive, base)
+    index = build_index(version, archive, base)
 
     print(f"archive : {archive}  ({archive.stat().st_size:,} bytes)")
     print(f"index   : {index}")

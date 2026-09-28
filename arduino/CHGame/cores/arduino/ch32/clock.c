@@ -51,20 +51,38 @@ uint32_t getCurrentMillis(void)
 
 #if defined(CH32V20x) || defined(CH32V30x) || defined(CH32V30x_C) || defined(CH32V00x) || defined(CH32X035) || defined(CH32L10x) || defined(CH32VM00X)
 
+/*
+ * systick_init() runs SysTick as an UP counter with auto-reload: CNT climbs
+ * from 0 to CMP at HCLK, then reloads to 0 and sets SR.CNTIF, and the SysTick
+ * interrupt advances msTick.  The elapsed part of the current millisecond is
+ * therefore CNT / (CMP + 1).  The old code used (CMP + 1 - CNT), the formula
+ * for a down-counting Cortex-M SysTick, which made micros() run backwards
+ * inside every millisecond and jump forward by ~2 ms at each tick.
+ *
+ * SR.CNTIF stays set from the reload until SysTick_Handler clears it.  If it
+ * is set, the counter has already wrapped but msTick has not caught up yet
+ * (interrupts disabled, or we were called from an ISR that outranks SysTick),
+ * so that millisecond is added here.  The reads are retried until msTick and
+ * the flag are stable around the CNT sample, so a tick landing mid-read can
+ * neither be missed nor counted twice.  A sample of exactly CMP with the flag
+ * set is the match cycle itself, before the reload, and is not bumped.
+ */
 uint32_t getCurrentMicros(void)
 {
-  
-  uint64_t m0 = GetTick();
-  __IO uint64_t u0 = SysTick->CNT;
-  uint64_t m1 = GetTick();
-  __IO uint32_t u1 = SysTick->CNT;   //may be a interruption
-   uint64_t tms = SysTick->CMP + 1;
+  const uint32_t tms = (uint32_t)SysTick->CMP + 1;   /* SysTick ticks per ms */
+  uint32_t m, u, sr0, sr1;
 
-  if (m1 != m0) {
-    return (m1 * 1000 + ((tms - u1) * 1000) / tms);
-  } else {
-    return (m0 * 1000 + ((tms - u0) * 1000) / tms);
+  do {
+    m   = (uint32_t)GetTick();
+    sr0 = SysTick->SR & 1u;
+    u   = (uint32_t)SysTick->CNT;
+    sr1 = SysTick->SR & 1u;
+  } while (m != (uint32_t)GetTick() || sr0 != sr1);
+
+  if (sr1 && u < tms - 1) {
+    m++;                                  /* wrapped, tick not counted yet */
   }
+  return m * 1000u + (u * 1000u) / tms;
 }
 
 
@@ -78,9 +96,18 @@ uint32_t getCurrentMicros(void)
 void SysTick_Handler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 void SysTick_Handler(void)
 {
-  msTick+=TICK_FREQ_1KHz;
-  osSystickHandler();
+  /*
+   * Clear the flag and advance the tick as one unit.  Interrupt nesting is
+   * enabled, so a higher-priority ISR could otherwise land between the two
+   * and see the wrap both in SR.CNTIF and in msTick, and getCurrentMicros()
+   * would count that millisecond twice.
+   */
+  uint32_t mstatus;
+  __asm volatile ("csrrci %0, mstatus, 0x8" : "=r" (mstatus) : : "memory");
   SysTick->SR = 0;
+  msTick += TICK_FREQ_1KHz;
+  __asm volatile ("csrw mstatus, %0" : : "r" (mstatus) : "memory");
+  osSystickHandler();
 }
 
 #endif
@@ -97,6 +124,8 @@ void SysTick_Handler(void)
 #define SYSTICK_CMPL    (0xE000F00C)
 #define SYSTICK_CMPH    (0xE000F010)
 
+/* V3A SysTick counts up from 0 and is reset by SysTick_Handler, so the
+ * elapsed part of the millisecond is CNT / (CMP + 1), as above. */
 uint32_t getCurrentMicros(void)
 {
   
@@ -112,9 +141,9 @@ uint32_t getCurrentMicros(void)
            tms = (tms << 32) + *((__IO uint32_t *)SYSTICK_CMPL) + 1;     
 
   if (m1 != m0) {
-    return (m1 * 1000 + ((tms - u1) * 1000) / tms);
+    return (m1 * 1000 + (u1 * 1000) / tms);
   } else {
-    return (m0 * 1000 + ((tms - u0) * 1000) / tms);
+    return (m0 * 1000 + (u0 * 1000) / tms);
   }
 }
 
