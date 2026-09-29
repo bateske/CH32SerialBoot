@@ -6,14 +6,16 @@
 # wants to press Upload, and every extra menu is another way to end up with a
 # board that will not enumerate.
 #
-# The advanced menus that remain are the two that a game actually needs to
-# trade off (optimisation and float printf support). Programmer selection is
-# NOT offered: normal uploads always go through the CHGame bootloader over USB
-# CDC. Factory provisioning and recovery use wchisp directly and are documented
-# in docs/recovery.md rather than surfaced here.
+# The advanced menus that remain are the ones a game actually needs to trade
+# off: optimisation, float printf support, and which core peripherals are
+# compiled in. Programmer selection is NOT offered: normal uploads always go
+# through the CHGame bootloader over USB CDC. Factory provisioning and recovery
+# use wchisp directly and are documented in docs/recovery.md rather than
+# surfaced here.
 
 menu.opt=Optimize
 menu.rtlib=C Runtime Library
+menu.periph=Peripherals
 
 CHGame.name=CHGame
 
@@ -76,6 +78,24 @@ CHGame.menu.rtlib.nanofp=Newlib Nano + Float Printf
 CHGame.menu.rtlib.nanofp.build.flags.ldflags=--specs=nano.specs --specs=nosys.specs -u _printf_float
 CHGame.menu.rtlib.full=Newlib Standard
 CHGame.menu.rtlib.full.build.flags.ldflags=--specs=nosys.specs
+
+# Which core peripherals are compiled in. core.a is linked --whole-archive, so
+# Serial1's constructor and the USART and timer IRQ handlers are always
+# reachable and --gc-sections cannot drop them: leaving them in costs about
+# 4 KB of the 50,944 B app region even in a sketch that never touches them.
+# "Game" is the default because that is what the console is (USB serial, SPI
+# display, buttons, a piezo driven by CHGameSound) and games need the room.
+# It compiles out Serial1, tone(), analogWrite() PWM and HardwareTimer; USB
+# Serial, SPI, Wire, analogRead() and attachInterrupt() are untouched.
+#
+# The defines live in their own property, appended to the compiler flags in
+# platform.txt, rather than in compiler.*.extra_flags or build.extra_flags:
+# sketches and CLI users override those, and doing so silently dropped these
+# flags once already.
+CHGame.menu.periph.game=Game: USB Serial only, no Serial1/tone/PWM (default, ~4 KB smaller)
+CHGame.menu.periph.game.build.flags.periph=-DUART_MODULE_ONLY -DTIM_MODULE_ONLY
+CHGame.menu.periph.full=Full: Serial1 on H1, tone(), PWM, HardwareTimer
+CHGame.menu.periph.full.build.flags.periph=
 
 CHGame.build.flags.debug=-DNDEBUG
 CHGame.build.flags.fp=

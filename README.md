@@ -74,6 +74,16 @@ An empty sketch stays uploadable. The upload handshake lives in the USB
 interrupt, not in sketch code, so a sketch that never mentions `Serial` — or one
 stuck in a blocking loop — can still be replaced.
 
+### Peripherals menu
+
+**Tools → Peripherals** chooses how much of the core is compiled in. The
+default, **Game**, leaves out Serial1, `tone()`, `analogWrite()` PWM and
+HardwareTimer, which saves about 4 KB of the 50,944 B a sketch can use. USB
+Serial, SPI, Wire, `analogRead()`, `attachInterrupt()` and CHGameSound all work
+as normal. Pick **Full** if a sketch needs Serial1 on the H1 header, `tone()`,
+PWM or HardwareTimer. From the CLI the setting is `periph=game` or
+`periph=full` in the FQBN.
+
 ### Startup
 
 Your sketch starts within a few milliseconds of power-on. The bootloader's only

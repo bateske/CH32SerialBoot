@@ -5,6 +5,26 @@ number Boards Manager compares with what a user has installed, so every release
 bumps it. `tools/release.sh <version> bateske/CH32SerialBoot` publishes the
 release and uses the matching section of this file as the GitHub release notes.
 
+## 0.2.2 (2026-09-28)
+
+### Changed
+
+- New **Peripherals** board menu (Tools menu in the IDE, `periph=` in an
+  FQBN). The default, "Game", compiles out Serial1, `tone()`, `analogWrite()`
+  PWM and HardwareTimer; "Full" keeps them. USB Serial, SPI, Wire,
+  `analogRead()`, `attachInterrupt()` and CHGameSound (which has its own timer
+  path) are the same in both. With "Game" an empty sketch is 4,668 B instead
+  of 8,712 B, CHSDtoUSB is 22,528 B instead of 27,100 B, and CHBlackjack
+  builds again at 48,632 B instead of overflowing the app region by 2,140 B.
+- Why the menu exists: those sizes were what everyone was used to, but they
+  came from a hand-edited `platform.local.txt` in the installed 0.1.0 folder,
+  added for CH32Doom and never part of a release. Installing 0.2.1 replaced
+  that folder and the defines with it, and core.a is linked `--whole-archive`,
+  so the unused peripherals' constructors and interrupt handlers cost about
+  4 KB in every sketch. The defines now live in their own build property
+  (`build.flags.periph`) appended to the compiler flags, so a sketch or CLI
+  user overriding `compiler.*.extra_flags` no longer drops them.
+
 ## 0.2.1 (2026-09-28)
 
 First Boards Manager release since 0.1.0; it also carries the 0.2.0 changes
