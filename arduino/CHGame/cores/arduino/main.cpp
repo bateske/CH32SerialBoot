@@ -5,6 +5,8 @@
 
 #if defined(USE_CHGAME_USB_CDC)
 #include "CHGameUSBSerial.h"
+#elif defined(USE_CHGAME_USB_BOOTONLY)
+extern "C" void CDC_init(void);
 #endif
 
 
@@ -25,6 +27,11 @@ int main( void )
      * opt in would mean any sketch that forgot could only be recovered with
      * the BOOT button. */
     USBSerial.begin();
+#elif defined(USE_CHGAME_USB_BOOTONLY)
+    /* "Upload only": the same USB device and the same upload handshake, which
+     * live entirely in the control path of USBFS_IRQHandler, but no Serial.
+     * USBSerial.begin() does nothing beyond this call. */
+    CDC_init();
 #endif
 
 #if defined(USE_TINYUSB)

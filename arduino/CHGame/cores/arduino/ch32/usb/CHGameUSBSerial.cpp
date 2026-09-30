@@ -1,3 +1,8 @@
+/* CHGAME: Serial only exists with USB -> Serial. In "Upload only" mode this
+   whole file is compiled out; otherwise USBSerial's static constructor would
+   keep the class (and Stream/Print with it) alive even though nothing uses it. */
+#if defined(USE_CHGAME_USB_CDC)
+
 #include "CHGameUSBSerial.h"
 #include "wch_usbcdc_config.h"
 
@@ -142,3 +147,5 @@ void USBSerialCH32::_irqHandler() {
 }
 
 wch::usbcdc::USBSerialCH32 wch::usbcdc::USBSerial;
+
+#endif /* USE_CHGAME_USB_CDC */

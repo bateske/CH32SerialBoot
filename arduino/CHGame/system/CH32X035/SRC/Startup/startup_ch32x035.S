@@ -220,8 +220,9 @@ handle_reset:
     ori t0, t0, 3           
 	csrw mtvec, t0
 
-    la a0, __libc_fini_array
-    call atexit
+    /* CHGAME: no atexit(__libc_fini_array). main() never returns, so global
+       destructors never run anyway, and registering them linked newlib's exit
+       machinery plus a 140 B table in RAM: ~224 B flash, 144 B RAM. */
     call __libc_init_array
 
     jal  SystemInit

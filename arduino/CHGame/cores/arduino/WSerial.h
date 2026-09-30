@@ -17,6 +17,15 @@
 #if defined(USE_CHGAME_USB_CDC)
 #include "CHGameUSBSerial.h"
 #define Serial USBSerial
+#elif defined(USE_CHGAME_USB_BOOTONLY)
+/* Tools -> USB -> "Upload only" has no Serial, and a sketch that uses it must
+ * fail to build rather than lose its output. Defining Serial is also what stops
+ * the UART block below from quietly mapping it to Serial1 (Peripherals -> Full)
+ * -- the same name talking to a different port is worse than an error. The
+ * type is never defined, so any use names it in the compiler error. */
+struct Serial_is_not_available_with_Tools_USB_Upload_only;
+#define Serial (Serial_is_not_available_with_Tools_USB_Upload_only())
+#define USBSerial Serial   /* the upstream name some older sketches use */
 #endif
 
 #if defined(UART_MODULE_ENABLED) && !defined(UART_MODULE_ONLY)

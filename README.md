@@ -93,6 +93,18 @@ CHBlackjack goes from 50,048 B to 47,528 B). Plain `-Os` stays the default
 because links are slower and the `.map` file is harder to read. From the CLI
 the setting is `opt=oslto` in the FQBN.
 
+### USB menu
+
+**Tools → USB → Upload only** removes `Serial` from the build, about 0.6–0.7 KB
+of flash, for a sketch that needs the room more than it needs to print. The
+board still shows up as a COM port and Upload still works with no button
+presses, even if the sketch is stuck in `setup()`: uploading never used the
+sketch's serial data, only the USB connection and the 1200-baud handshake, and
+both stay. A sketch that uses `Serial` in this mode fails to build, on purpose,
+so nothing that depends on it silently stops working. **Serial** stays the
+default. From the CLI the setting is `usb=serial` or `usb=uploadonly` in the
+FQBN.
+
 ### Memory report
 
 The RAM figure after a build is measured against 18,416 B: the 20 KB SRAM less

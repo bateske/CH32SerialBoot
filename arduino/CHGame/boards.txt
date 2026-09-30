@@ -7,15 +7,16 @@
 # board that will not enumerate.
 #
 # The advanced menus that remain are the ones a game actually needs to trade
-# off: optimisation, float printf support, and which core peripherals are
-# compiled in. Programmer selection is NOT offered: normal uploads always go
-# through the CHGame bootloader over USB CDC. Factory provisioning and recovery
-# use wchisp directly and are documented in docs/recovery.md rather than
-# surfaced here.
+# off: optimisation, float printf support, which core peripherals are compiled
+# in, and whether USB Serial is. Programmer selection is NOT offered: normal
+# uploads always go through the CHGame bootloader over USB CDC. Factory
+# provisioning and recovery use wchisp directly and are documented in
+# docs/recovery.md rather than surfaced here.
 
 menu.opt=Optimize
 menu.rtlib=C Runtime Library
 menu.periph=Peripherals
+menu.usb=USB
 
 CHGame.name=CHGame
 
@@ -46,9 +47,7 @@ CHGame.upload.maximum_data_size=18416
 # ~900 B left for the heap.
 CHGame.build.warn_data_percentage=95
 
-# Serial is native USB CDC, and the 1200-baud upload handshake is handled inside
-# the USB interrupt (see libraries/CHGameUSB). Sketches need no special code.
-CHGame.build.usb_flags=-DUSE_CHGAME_USB_CDC
+# USB flags come from the USB menu below.
 CHGame.build.flags.clock=-DSYSCLK_FREQ_48MHz_HSI=48000000 -DF_CPU=48000000
 
 # The uploader performs the whole app -> bootloader -> app transition itself,
@@ -111,6 +110,23 @@ CHGame.menu.periph.game=Game: USB Serial only, no Serial1/tone/PWM (default, ~4 
 CHGame.menu.periph.game.build.flags.periph=-DUART_MODULE_ONLY -DTIM_MODULE_ONLY
 CHGame.menu.periph.full=Full: Serial1 on H1, tone(), PWM, HardwareTimer
 CHGame.menu.periph.full.build.flags.periph=
+
+# Serial is native USB CDC, and the 1200-baud upload handshake is handled inside
+# the USB interrupt (cores/arduino/ch32/usb). Sketches need no special code.
+#
+# "Upload only" keeps the USB device and that handshake - both live in the
+# interrupt's control path - and compiles out Serial itself (the class,
+# Stream/Print and the CDC data path): about 0.6-0.7 KB. The COM port still
+# appears and Upload still works with no button presses. Using Serial in that
+# mode is a compile error, on purpose (see WSerial.h).
+#
+# There is deliberately no "None": a sketch built without USB cannot be
+# re-uploaded while it runs, which breaks the promise that every sketch stays
+# uploadable.
+CHGame.menu.usb.serial=Serial (default)
+CHGame.menu.usb.serial.build.usb_flags=-DUSE_CHGAME_USB_CDC
+CHGame.menu.usb.uploadonly=Upload only: no Serial (~0.7 KB smaller)
+CHGame.menu.usb.uploadonly.build.usb_flags=-DUSE_CHGAME_USB_BOOTONLY
 
 CHGame.build.flags.debug=-DNDEBUG
 CHGame.build.flags.fp=

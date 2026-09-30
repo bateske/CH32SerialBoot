@@ -1,3 +1,8 @@
+/* CHGAME: compiled only when the board's USB menu keeps USB. core.a is linked
+   --whole-archive and USBFS_IRQHandler sits in the vector table, so this file
+   would otherwise always be linked. */
+#if defined(USE_CHGAME_USB_CDC) || defined(USE_CHGAME_USB_BOOTONLY)
+
 #include "wch_usbcdc_usb.h"
 #include "wch_usbcdc_config.h"
 #include "wch_usbcdc_internal.h"
@@ -188,3 +193,5 @@ void generate_all_string_descriptors(void) {
     generate_interface_descriptor();
     generate_unique_serial_descriptor();
 }
+
+#endif /* USE_CHGAME_USB_CDC || USE_CHGAME_USB_BOOTONLY */

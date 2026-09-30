@@ -5,6 +5,40 @@ number Boards Manager compares with what a user has installed, so every release
 bumps it. `tools/release.sh <version> bateske/CH32SerialBoot` publishes the
 release and uses the matching section of this file as the GitHub release notes.
 
+## 0.2.4 (2026-09-30)
+
+### Added
+
+- **USB → Upload only** board menu option (`usb=uploadonly`): compiles out
+  `Serial` (the USB serial class, Stream/Print and the CDC data path) but
+  keeps the USB device and the 1200-baud upload handshake, so the COM port
+  still appears and Upload still works with no button presses. About
+  0.6–0.7 KB smaller: an empty sketch 3,968 → 3,288 B, CHChess (LTO)
+  49,444 → 48,824 B. Using `Serial` in this mode is a compile error naming the
+  menu setting, rather than a stub that silently prints nothing, and it no
+  longer falls back to `Serial1` with Peripherals → Full. **Serial** is the
+  default, and FQBNs without `usb=` build exactly as before. Proposed from
+  HypeRunner, which is close to the flash limit. Tested on the board with
+  `-Os` and LTO: the port appears, uploading over an Upload-only sketch works
+  with no button presses (also one stuck in `setup()`), and typing into its
+  port in a serial monitor neither crashes it nor stops the next upload.
+
+### Changed
+
+- Every sketch is smaller and has more RAM: an empty sketch 4,668 → 3,968 B
+  flash and 704 → 544 B RAM with `-Os`, CHChess (LTO) 50,036 → 49,444 B and
+  18,000 → 17,844 B. Two changes:
+  - `USB_init()` sets up its clocks and the USB pins with direct register
+    writes instead of the vendor `RCC_*ClockCmd()`/`GPIO_Init()` helpers.
+    The register values are identical. It saves ~350–480 B when nothing else
+    uses the helpers, less when `pinMode()` pulls in `GPIO_Init` anyway.
+  - The startup code no longer registers `__libc_fini_array` with `atexit()`.
+    `main()` never returns, so global destructors never ran anyway, and the
+    registration linked newlib's exit handling and a 140 B table in RAM
+    (~224 B flash, 144 B RAM).
+  - Checked on the board: Serial output, re-uploading, global constructors,
+    and the USB pin and clock registers read back identical to 0.2.3.
+
 ## 0.2.3 (2026-09-30)
 
 ### Added

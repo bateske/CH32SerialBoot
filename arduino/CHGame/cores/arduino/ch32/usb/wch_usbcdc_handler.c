@@ -1,3 +1,8 @@
+/* CHGAME: compiled only when the board's USB menu keeps USB. core.a is linked
+   --whole-archive and USBFS_IRQHandler sits in the vector table, so this file
+   would otherwise always be linked. */
+#if defined(USE_CHGAME_USB_CDC) || defined(USE_CHGAME_USB_BOOTONLY)
+
 #include "wch_usbcdc_internal.h"
 
 /* CHGAME: armed by the CDC control path on the 1200-baud upload handshake. */
@@ -21,26 +26,22 @@ static inline void USB_EP_init(void) {
 }
 
 void USB_init(void) {
-    // Use CH32X035-specific RCC functions instead of direct register access
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_USBFS, ENABLE);
+    /* CHGAME: direct register writes rather than the vendor RCC_*ClockCmd()
+     * and GPIO_Init() helpers. Same effect; the helpers were only linked for
+     * these few lines, and dropping them saves ~350-480 B in every sketch that
+     * does not otherwise need them. */
+    RCC->APB2PCENR |= RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOC;
+    RCC->AHBPCENR  |= RCC_AHBPeriph_USBFS;
     
     // Wait for clocks to stabilize
     for(volatile int i = 0; i < 5000; i++) __NOP();
     
-    // Use proper CH32X035 GPIO initialization
-    GPIO_InitTypeDef GPIO_InitStructure = {0};
-    
-    // PC16 (USB D-) as floating input
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_16;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-    GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-    // PC17 (USB D+) as input with pull-up
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_17;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-    GPIO_Init(GPIOC, &GPIO_InitStructure);
+    /* PC16 (USB D-) floating input, PC17 (USB D+) input with pull-up. Pins
+     * 16-23 are configured through CFGXR, one nibble per pin; floating input
+     * is 0x4 and pull-up/down input 0x8, with BSXR bit (pin - 16) selecting
+     * pull-up. Exactly what GPIO_Init() wrote for these two calls. */
+    GPIOC->CFGXR = (GPIOC->CFGXR & ~0xFFu) | 0x04u | (0x08u << 4);
+    GPIOC->BSXR  = 1u << 1;
     
     // Critical: Use CH32X035-specific AFIO macros (try both approaches)
     // Approach 1: Try CH32X035 macro names
@@ -225,3 +226,4 @@ void USBFS_IRQHandler(void) {
   }
 }
 
+#endif /* USE_CHGAME_USB_CDC || USE_CHGAME_USB_BOOTONLY */
