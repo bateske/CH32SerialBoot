@@ -5,7 +5,7 @@
 # https://arduino.github.io/arduino-cli/latest/platform-specification/
 
 name=CHGame
-version=0.2.2
+version=0.2.3
 
 # Compile variables
 # ----------------------
@@ -34,6 +34,9 @@ compiler.libraries.ldflags=
 
 #"@{build.opt.path}" {build.flags.optimize}  {compiler.warning_flags} {build.flags.debug} -MP -MF
 
+# -msave-restore replaces each function's register save/restore with calls to
+# shared library routines: a little slower, noticeably smaller. Keep it unless
+# a sketch has flash to spare and needs the speed.
 compiler.extra_flags=-march={build.march} -mabi={build.mabi} -msmall-data-limit=8 -msave-restore -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fno-common 
 
 compiler.S.flags={compiler.extra_flags} -x assembler-with-cpp {build.flags.clock} "-I{build.system.path}/{build.series}/SRC/Startup/" "-I{build.core.path}/ch32/"

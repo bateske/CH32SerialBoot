@@ -5,6 +5,35 @@ number Boards Manager compares with what a user has installed, so every release
 bumps it. `tools/release.sh <version> bateske/CH32SerialBoot` publishes the
 release and uses the matching section of this file as the GitHub release notes.
 
+## 0.2.3 (2026-09-30)
+
+### Added
+
+- **Optimize → Smallest + LTO** (`opt=oslto`): `-Os` plus link-time
+  optimisation across the core, libraries and sketch. Usually 1–5 KB smaller
+  than `-Os`: CHBlackjack 50,048 → 47,528 B, CHSDtoUSB 23,788 → 20,144 B, an
+  empty sketch 4,668 → 4,248 B, and CHChess fits only with it (50,036 B; it
+  overflows by 5.2 KB without). Static RAM drops too, by 200–800 B. Built
+  cleanly on 15 sketches and the core's library examples, and tested on the
+  board: USB serial, re-uploading through the 1200-baud handshake,
+  `millis()`/`micros()`/`delay()`, the `osSystickHandler` hook and SRAM
+  functions all behave as with `-Os`. `-Os` stays the default.
+
+### Changed
+
+- The RAM report is now measured against 18,416 B, the space the linker
+  actually allows for static data (20 KB SRAM less the boot block and the
+  fixed 2 KB stack), instead of 20,480 B. The percentage now matches when the
+  link would fail; "left for local variables" is what remains for the heap.
+  The "Low memory available" warning fires at 95% of that instead of 75%, so
+  it no longer appears on every sketch with a framebuffer.
+
+### Fixed
+
+- Wire called `GetTick()` without a prototype, so it was implicitly declared
+  as returning `int` while the core defines it as `uint64_t`. It happened to
+  work, but LTO flagged it as a type mismatch that could be misoptimised.
+
 ## 0.2.2 (2026-09-28)
 
 ### Changed

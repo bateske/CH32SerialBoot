@@ -36,6 +36,7 @@
   ******************************************************************************
   Modified 6 june 2023 by Temperslee to support wch's risc-v chips
   */
+#include "wiring_time.h"
 #include "core_debug.h"
 #include "utility/twi.h"
 #include "PinAF_ch32yyxx.h"

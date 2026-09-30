@@ -84,6 +84,27 @@ as normal. Pick **Full** if a sketch needs Serial1 on the H1 header, `tone()`,
 PWM or HardwareTimer. From the CLI the setting is `periph=game` or
 `periph=full` in the FQBN.
 
+### Optimize menu
+
+**Tools → Optimize → Smallest + LTO** adds link-time optimisation to `-Os`: the
+core, the libraries and the sketch are optimised together as one program. It
+is usually 1–5 KB smaller than plain `-Os` (CHChess fits only with it, and
+CHBlackjack goes from 50,048 B to 47,528 B). Plain `-Os` stays the default
+because links are slower and the `.map` file is harder to read. From the CLI
+the setting is `opt=oslto` in the FQBN.
+
+### Memory report
+
+The RAM figure after a build is measured against 18,416 B: the 20 KB SRAM less
+the 16 B boot block and the 2 KB stack, which the linker reserves separately
+at the top. So "leaving N bytes for local variables" is really what is left
+for the heap (`malloc`, `String`); function locals live in the 2 KB stack,
+which is not counted. The "Low memory available" warning appears once less
+than about 900 B is left.
+
+To add compiler flags from the command line without editing the board files,
+use `--build-property build.extra_flags=...` with `arduino-cli compile`.
+
 ### Startup
 
 Your sketch starts within a few milliseconds of power-on. The bootloader's only
